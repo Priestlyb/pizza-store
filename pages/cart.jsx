@@ -20,6 +20,7 @@ const Cart = () => {
   const amount = cart.total;
   const currency = "USD";
   const style = { layout: "vertical" };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const dispatch = useDispatch();
   const router = useRouter();
 

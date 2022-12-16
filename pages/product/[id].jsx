@@ -6,11 +6,11 @@ import styles from "/styles/product.module.css";
 import { addProduct } from "../../redux/cartSlice";
 
 const product = ({ product }) => {
-  const dispatch = useDispatch();
-  const [price, setPrice] = useState(product.prices[0]);
+  const [price, setPrice] = useState(pizza.prices[0]);
   const [size, setSize] = useState(0);
-  const [extras, setExtras] = useState([]);
   const [quantity, setQuantity] = useState(1);
+  const [extras, setExtras] = useState([]);
+  const dispatch = useDispatch();
 
     const changePrice = (number) => {
       setPrice(price + number);
