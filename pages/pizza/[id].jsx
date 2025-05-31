@@ -10,7 +10,6 @@ const Product = ({ pizza }) => {
   const [size, setSize] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [extras, setExtras] = useState([]);
-
   const dispatch = useDispatch();
 
   const changePrice = (amount) => {
@@ -25,7 +24,6 @@ const Product = ({ pizza }) => {
 
   const handleExtraChange = (e, option) => {
     const isChecked = e.target.checked;
-
     if (isChecked) {
       setExtras((prev) => [...prev, option]);
       changePrice(option.price);
@@ -43,7 +41,13 @@ const Product = ({ pizza }) => {
     <div className={styles.container}>
       <div className={styles.left}>
         <div className={styles.imgContainer}>
-          <Image src={pizza.img} layout="fill" objectFit="contain" alt={pizza.title} />
+          <Image
+            src={pizza.img}
+            fill
+            objectFit="contain"
+            alt={pizza.title}
+            priority
+          />
         </div>
       </div>
 
@@ -55,8 +59,12 @@ const Product = ({ pizza }) => {
         <h3 className={styles.choose}>Choose the size</h3>
         <div className={styles.sizes}>
           {["Small", "Medium", "Large"].map((label, index) => (
-            <div key={label} className={styles.size} onClick={() => handleSizeChange(index)}>
-              <Image src="/img/size.png" layout="fill" alt={label} />
+            <div
+              key={label}
+              className={styles.size}
+              onClick={() => handleSizeChange(index)}
+            >
+              <Image src="/img/size.png" fill alt={label} />
               <span className={styles.number}>{label}</span>
             </div>
           ))}
@@ -68,12 +76,12 @@ const Product = ({ pizza }) => {
             <div className={styles.option} key={option._id}>
               <input
                 type="checkbox"
-                id={option.text}
+                id={option._id}
                 name={option.text}
                 className={styles.checkbox}
                 onChange={(e) => handleExtraChange(e, option)}
               />
-              <label htmlFor={option.text}>{option.text}</label>
+              <label htmlFor={option._id}>{option.text}</label>
             </div>
           ))}
         </div>
@@ -83,7 +91,9 @@ const Product = ({ pizza }) => {
             type="number"
             min={1}
             value={quantity}
-            onChange={(e) => setQuantity(Number(e.target.value))}
+            onChange={(e) =>
+              setQuantity(Math.max(1, Number(e.target.value)))
+            }
             className={styles.quantity}
           />
           <button className={styles.button} onClick={handleAddToCart}>
@@ -97,7 +107,9 @@ const Product = ({ pizza }) => {
 
 export const getServerSideProps = async ({ params }) => {
   try {
-    const res = await axios.get(`http://localhost:3000/api/pizzas/${params.id}`);
+    const res = await axios.get(
+      `http://localhost:3000/api/pizzas/${params.id}`
+    );
     return { props: { pizza: res.data } };
   } catch (err) {
     console.error("Error fetching pizza:", err.message);

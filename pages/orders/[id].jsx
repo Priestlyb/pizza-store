@@ -3,95 +3,57 @@ import Image from "next/image";
 import axios from "axios";
 
 const Order = ({ order }) => {
+  if (!order) return <p>Order not found.</p>;
+
   const status = order.status;
 
   const statusClass = (index) => {
     if (index - status < 1) return styles.done;
     if (index - status === 1) return styles.inProgress;
-    if (index - status > 1) return styles.undone;
+    return styles.undone;
   };
+
   return (
     <div className={styles.container}>
       <div className={styles.left}>
         <div className={styles.row}>
           <table className={styles.table}>
-            <tr className={styles.trTitle}>
-              <th>Order ID</th>
-              <th>Customer</th>
-              <th>Address</th>
-              <th>Total</th>
-            </tr>
-            <tr className={styles.tr}>
-              <td>
-                <span className={styles.id}>{order._id}</span>
-              </td>
-              <td>
-                <span className={styles.name}>{order.customer}</span>
-              </td>
-              <td>
-                <span className={styles.address}>{order.address}</span>
-              </td>
-              <td>
-                <span className={styles.total}>${order.total}</span>
-              </td>
-            </tr>
+            <thead>
+              <tr className={styles.trTitle}>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Address</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className={styles.tr}>
+                <td><span className={styles.id}>{order._id}</span></td>
+                <td><span className={styles.name}>{order.customer}</span></td>
+                <td><span className={styles.address}>{order.address}</span></td>
+                <td><span className={styles.total}>${order.total}</span></td>
+              </tr>
+            </tbody>
           </table>
         </div>
         <div className={styles.row}>
-          <div className={statusClass(0)}>
-            <Image src="/img/paid.png" width={30} height={30} alt="" />
-            <span>Payment</span>
-            <div className={styles.checkedIcon}>
-              <Image
-                className={styles.checkedIcon}
-                src="/img/checked.png"
-                width={20}
-                height={20}
-                alt=""
-              />
+          {[
+            { label: "Payment", icon: "/img/paid.png" },
+            { label: "Preparing", icon: "/img/bake.png" },
+            { label: "On the way", icon: "/img/bike.png" },
+            { label: "Delivered", icon: "/img/delivered.png" },
+          ].map((step, i) => (
+            <div key={i} className={statusClass(i)}>
+              <Image src={step.icon} width={30} height={30} alt={step.label} />
+              <span>{step.label}</span>
+              <div className={styles.checkedIcon}>
+                <Image src="/img/checked.png" width={20} height={20} alt="Checked" />
+              </div>
             </div>
-          </div>
-          <div className={statusClass(1)}>
-            <Image src="/img/bake.png" width={30} height={30} alt="" />
-            <span>Preparing</span>
-            <div className={styles.checkedIcon}>
-              <Image
-                className={styles.checkedIcon}
-                src="/img/checked.png"
-                width={20}
-                height={20}
-                alt=""
-              />
-            </div>
-          </div>
-          <div className={statusClass(2)}>
-            <Image src="/img/bike.png" width={30} height={30} alt="" />
-            <span>On the way</span>
-            <div className={styles.checkedIcon}>
-              <Image
-                className={styles.checkedIcon}
-                src="/img/checked.png"
-                width={20}
-                height={20}
-                alt=""
-              />
-            </div>
-          </div>
-          <div className={statusClass(3)}>
-            <Image src="/img/delivered.png" width={30} height={30} alt="" />
-            <span>Delivered</span>
-            <div className={styles.checkedIcon}>
-              <Image
-                className={styles.checkedIcon}
-                src="/img/checked.png"
-                width={20}
-                height={20}
-                alt=""
-              />
-            </div>
-          </div>
+          ))}
         </div>
       </div>
+
       <div className={styles.right}>
         <div className={styles.wrapper}>
           <h2 className={styles.title}>CART TOTAL</h2>
@@ -114,10 +76,17 @@ const Order = ({ order }) => {
 };
 
 export const getServerSideProps = async ({ params }) => {
-  const res = await axios.get(`http://localhost:3000/api/orders/${params.id}`);
-  return {
-    props: { order: res.data },
-  };
+  try {
+    const res = await axios.get(`http://localhost:3000/api/orders/${params.id}`);
+    return {
+      props: { order: res.data },
+    };
+  } catch (err) {
+    console.error("Error fetching order:", err);
+    return {
+      props: { order: null },
+    };
+  }
 };
 
 export default Order;

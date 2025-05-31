@@ -9,23 +9,20 @@ const Index = ({ orders, pizzas }) => {
   const status = ["preparing", "on the way", "delivered"];
 
   const handleDelete = async (id) => {
-    console.log(id);
     try {
-      const res = await axios.delete(
-        "http://localhost:3000/api/pizzas/" + id
-      );
+      await axios.delete("/api/pizzas/" + id);
       setPizzaList(pizzaList.filter((pizza) => pizza._id !== id));
     } catch (err) {
-      console.log(err);
+      console.error("Delete failed:", err);
     }
   };
 
   const handleStatus = async (id) => {
-    const item = orderList.filter((order) => order._id === id)[0];
-    const currentStatus = item.status;
+    const order = orderList.find((order) => order._id === id);
+    const currentStatus = order.status;
 
     try {
-      const res = await axios.put("http://localhost:3000/api/orders/" + id, {
+      const res = await axios.put("/api/orders/" + id, {
         status: currentStatus + 1,
       });
       setOrderList([
@@ -33,16 +30,17 @@ const Index = ({ orders, pizzas }) => {
         ...orderList.filter((order) => order._id !== id),
       ]);
     } catch (err) {
-      console.log(err);
+      console.error("Status update failed:", err);
     }
   };
 
   return (
     <div className={styles.container}>
+      {/* Pizza Table */}
       <div className={styles.item}>
-        <h1 className={styles.title}>pizzas</h1>
+        <h1 className={styles.title}>Pizzas</h1>
         <table className={styles.table}>
-          <tbody>
+          <thead>
             <tr className={styles.trTitle}>
               <th>Image</th>
               <th>Id</th>
@@ -50,17 +48,17 @@ const Index = ({ orders, pizzas }) => {
               <th>Price</th>
               <th>Action</th>
             </tr>
-          </tbody>
-          {pizzaList.map((pizza) => (
-            <tbody key={pizza._id}>
-              <tr className={styles.trTitle}>
+          </thead>
+          <tbody>
+            {pizzaList.map((pizza) => (
+              <tr className={styles.trTitle} key={pizza._id}>
                 <td>
                   <Image
                     src={pizza.img}
                     width={50}
                     height={50}
                     objectFit="cover"
-                    alt=""
+                    alt={pizza.title}
                   />
                 </td>
                 <td>{pizza._id.slice(0, 5)}...</td>
@@ -76,14 +74,16 @@ const Index = ({ orders, pizzas }) => {
                   </button>
                 </td>
               </tr>
-            </tbody>
-          ))}
+            ))}
+          </tbody>
         </table>
       </div>
+
+      {/* Order Table */}
       <div className={styles.item}>
         <h1 className={styles.title}>Orders</h1>
         <table className={styles.table}>
-          <tbody>
+          <thead>
             <tr className={styles.trTitle}>
               <th>Id</th>
               <th>Customer</th>
@@ -92,16 +92,14 @@ const Index = ({ orders, pizzas }) => {
               <th>Status</th>
               <th>Action</th>
             </tr>
-          </tbody>
-          {orderList.map((order) => (
-            <tbody key={order._id}>
-              <tr className={styles.trTitle}>
+          </thead>
+          <tbody>
+            {orderList.map((order) => (
+              <tr className={styles.trTitle} key={order._id}>
                 <td>{order._id.slice(0, 5)}...</td>
                 <td>{order.customer}</td>
                 <td>${order.total}</td>
-                <td>
-                  {order.method === 0 ? <span>cash</span> : <span>paid</span>}
-                </td>
+                <td>{order.method === 0 ? "cash" : "paid"}</td>
                 <td>{status[order.status]}</td>
                 <td>
                   <button onClick={() => handleStatus(order._id)}>
@@ -109,8 +107,8 @@ const Index = ({ orders, pizzas }) => {
                   </button>
                 </td>
               </tr>
-            </tbody>
-          ))}
+            ))}
+          </tbody>
         </table>
       </div>
     </div>
@@ -118,7 +116,7 @@ const Index = ({ orders, pizzas }) => {
 };
 
 export const getServerSideProps = async (ctx) => {
-  const myCookie = ctx.req?.cookies || "";
+  const myCookie = ctx.req?.cookies || {};
 
   if (myCookie.token !== process.env.TOKEN) {
     return {
@@ -129,15 +127,27 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
-  const pizzaRes = await axios.get("http://localhost:3000/api/pizzas");
-  const orderRes = await axios.get("http://localhost:3000/api/orders");
+  try {
+    const [pizzaRes, orderRes] = await Promise.all([
+      axios.get("http://localhost:3000/api/pizzas"),
+      axios.get("http://localhost:3000/api/orders"),
+    ]);
 
-  return {
-    props: {
-      orders: orderRes.data,
-      pizzas: pizzaRes.data,
-    },
-  };
+    return {
+      props: {
+        orders: orderRes.data,
+        pizzas: pizzaRes.data,
+      },
+    };
+  } catch (err) {
+    console.error("Failed to fetch data:", err);
+    return {
+      props: {
+        orders: [],
+        pizzas: [],
+      },
+    };
+  }
 };
 
 export default Index;
