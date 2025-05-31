@@ -106,12 +106,12 @@ const Cart = () => {
             <th>Total</th>
           </tr>
           
-          {cart.products.map((product) => (
-              <tr className={styles.tr} key={product._id}>
+          {cart.pizzas.map((pizza) => (
+              <tr className={styles.tr} key={pizza._id}>
             <td>
               <div className={styles.imgContainer}>
                 <Image
-                  src={product.img}
+                  src={pizza.img}
                   layout="fill"
                   objectFit="cover"
                   alt=""
@@ -119,24 +119,24 @@ const Cart = () => {
               </div>
             </td>
             <td>
-              <span className={styles.name}>{product.title}</span>
+              <span className={styles.name}>{pizza.title}</span>
             </td>
             <td>
               <span className={styles.extras}>
-                    {product.extras.map((extra) => (
+                    {pizza.extras.map((extra) => (
                       <span key={extra._id}>{extra.text}, </span>
                     ))}
               </span>
             </td>
             <td>
-              <span className={styles.price}>${product.price}</span>
+              <span className={styles.price}>${pizza.price}</span>
             </td>
             <td>
-              <span className={styles.quantity}>{product.quantity}</span>
+              <span className={styles.quantity}>{pizza.quantity}</span>
             </td>
             <td>
               <span className={styles.total}>${
-              product.price * product.quantity}</span>
+              pizza.price * pizza.quantity}</span>
             </td>
           </tr>
             ))} 

@@ -38,12 +38,16 @@ const Add = ({ setClose }) => {
       const newProduct = {
         title,
         desc,
-        prices,
-        extraOption,
+        prices: prices.map((p) => Number(p)), // Ensure they're numbers
+        extraOption: extraOption.map((opt) => ({
+          text: opt.text,
+          price: Number(opt.price),
+        })),
         img: url,
       };
 
-      await axios.post("http://localhost:3000/api/products", newProduct);
+
+      await axios.post("http://localhost:3000/api/pizzas", newProduct);
       setClose(true);
     } catch (err) {
       console.log(err);
@@ -100,6 +104,7 @@ const Add = ({ setClose }) => {
             />
           </div>
         </div>
+
         <div className={styles.item}>
           <label className={styles.label}>Extra</label>
           <div className={styles.extra}>
@@ -121,6 +126,7 @@ const Add = ({ setClose }) => {
               Add
             </button>
           </div>
+
           <div className={styles.extraItems}>
             {extraOption.map((option) => (
               <span key={option.text} className={styles.extraItem}>
@@ -128,6 +134,7 @@ const Add = ({ setClose }) => {
               </span>
             ))}
           </div>
+
         </div>
         <button className={styles.addButton} onClick={handleCreate}>
           Create

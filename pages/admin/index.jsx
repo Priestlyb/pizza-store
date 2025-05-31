@@ -3,8 +3,8 @@ import Image from "next/image";
 import { useState } from "react";
 import styles from "../../styles/Admin.module.css";
 
-const Index = ({ orders, products }) => {
-  const [productList, setProductList] = useState(products);
+const Index = ({ orders, pizzas }) => {
+  const [pizzaList, setPizzaList] = useState(pizzas);
   const [orderList, setOrderList] = useState(orders);
   const status = ["preparing", "on the way", "delivered"];
 
@@ -12,9 +12,9 @@ const Index = ({ orders, products }) => {
     console.log(id);
     try {
       const res = await axios.delete(
-        "http://localhost:3000/api/products/" + id
+        "http://localhost:3000/api/pizzas/" + id
       );
-      setProductList(productList.filter((pizza) => pizza._id !== id));
+      setPizzaList(pizzaList.filter((pizza) => pizza._id !== id));
     } catch (err) {
       console.log(err);
     }
@@ -40,7 +40,7 @@ const Index = ({ orders, products }) => {
   return (
     <div className={styles.container}>
       <div className={styles.item}>
-        <h1 className={styles.title}>Products</h1>
+        <h1 className={styles.title}>pizzas</h1>
         <table className={styles.table}>
           <tbody>
             <tr className={styles.trTitle}>
@@ -51,26 +51,26 @@ const Index = ({ orders, products }) => {
               <th>Action</th>
             </tr>
           </tbody>
-          {productList.map((product) => (
-            <tbody key={product._id}>
+          {pizzaList.map((pizza) => (
+            <tbody key={pizza._id}>
               <tr className={styles.trTitle}>
                 <td>
                   <Image
-                    src={product.img}
+                    src={pizza.img}
                     width={50}
                     height={50}
                     objectFit="cover"
                     alt=""
                   />
                 </td>
-                <td>{product._id.slice(0, 5)}...</td>
-                <td>{product.title}</td>
-                <td>${product.prices[0]}</td>
+                <td>{pizza._id.slice(0, 5)}...</td>
+                <td>{pizza.title}</td>
+                <td>${pizza.prices[0]}</td>
                 <td>
                   <button className={styles.button}>Edit</button>
                   <button
                     className={styles.button}
-                    onClick={() => handleDelete(product._id)}
+                    onClick={() => handleDelete(pizza._id)}
                   >
                     Delete
                   </button>
@@ -129,13 +129,13 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
-  const productRes = await axios.get("http://localhost:3000/api/products");
+  const pizzaRes = await axios.get("http://localhost:3000/api/pizzas");
   const orderRes = await axios.get("http://localhost:3000/api/orders");
 
   return {
     props: {
       orders: orderRes.data,
-      products: productRes.data,
+      pizzas: pizzaRes.data,
     },
   };
 };
