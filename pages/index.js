@@ -33,11 +33,24 @@ export const getServerSideProps = async (ctx) => {
     admin = true;
   }
 
-  const res = await axios.get("http://localhost:3000/api/pizzas");
-  return {
-    props: {
-      pizzas: res.data,
-      admin,
-    },
-  };
+  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
+  try {
+    const res = await axios.get(`${baseURL}/api/pizzas`);
+    return {
+      props: {
+        pizzas: res.data,
+        admin,
+      },
+    };
+  } catch (error) {
+    console.error("Failed to fetch pizzas:", error.message);
+    return {
+      props: {
+        pizzas: [],
+        admin,
+      },
+    };
+  }
 };
+
