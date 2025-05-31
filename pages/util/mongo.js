@@ -1,43 +1,29 @@
-import mongoose from 'mongoose';
+// pages/util/mongo.js
+import dbConnect from '@/util/mongo'; // Adjust this import path if needed
 
-const MONGO_URL = process.env.MONGO_URL;
+export async function getServerSideProps() {
+  try {
+    await dbConnect();
 
-if (!MONGO_URL) {
-  throw new Error(
-    '❌ Please define the MONGO_URL environment variable in .env.local'
+    // Example dummy data, replace with your actual MongoDB queries
+    const serverMessage = 'Successfully connected to MongoDB.';
+
+    return {
+      props: { message: serverMessage },
+    };
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
+    return {
+      props: { message: 'Failed to connect to MongoDB.' },
+    };
+  }
+}
+
+export default function MongoPage({ message }) {
+  return (
+    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
+      <h1>MongoDB Connection Status</h1>
+      <p>{message}</p>
+    </div>
   );
 }
-
-// Use global cache in dev to prevent multiple connections
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
-
-async function dbConnect() {
-  if (cached.conn) {
-    return cached.conn;
-  }
-
-  if (!cached.promise) {
-    const options = {
-      bufferCommands: false,
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    };
-
-    cached.promise = mongoose.connect(MONGO_URL, options).then((mongoose) => {
-      console.log("✅ Connected to MongoDB");
-      return mongoose;
-    }).catch((err) => {
-      console.error("❌ MongoDB connection error:", err);
-      throw err;
-    });
-  }
-
-  cached.conn = await cached.promise;
-  return cached.conn;
-}
-
-export default dbConnect;
