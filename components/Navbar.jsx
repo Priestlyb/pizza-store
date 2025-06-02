@@ -43,7 +43,7 @@ const Navbar = () => {
           <span>+234 806 715 6986</span>
         </div>
 
-        <Link href="/cart">
+        <Link href="/cart" passHref>
           <a className={styles.cart}>
             <Image src="/img/cart.png" alt="cart" width={25} height={25} />
             <span className={styles.counter}>{quantity}</span>

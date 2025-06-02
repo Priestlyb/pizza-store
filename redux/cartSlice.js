@@ -2,8 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   pizzas: [],
-  quantity: 0, // number of different pizza items
-  total: 0,    // sum of price * quantity of each item
+  quantity: 0,
+  total: 0,
 };
 
 const cartSlice = createSlice({
@@ -43,7 +43,9 @@ const cartSlice = createSlice({
     },
 
     loadCartFromStorage: (state, action) => {
-      return action.payload;
+      state.pizzas = action.payload.pizzas || [];
+      state.quantity = action.payload.quantity || 0;
+      state.total = action.payload.total || 0;
     },
   },
 });

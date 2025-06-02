@@ -47,7 +47,7 @@ const Cart = () => {
       const res = await axios.post(`${NEXT_PUBLIC_BASE_URL}/api/orders`, data);
       if (res.status === 201) {
         dispatch(reset());
-        localStorage.removePizza("pizza_cart");
+        localStorage.removeItem("pizza_cart");
         router.push(`/orders/${res.data._id}`);
       }
     } catch (err) {
