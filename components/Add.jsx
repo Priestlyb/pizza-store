@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styles from "../styles/Add.module.css";
-import axios from "axios";
+import axiosInstance from "@/lib/config";
 
 const Add = ({ setClose }) => {
   const [file, setFile] = useState(null);
@@ -34,7 +34,7 @@ const Add = ({ setClose }) => {
     data.append("upload_preset", "Pizza_Img");
 
     try {
-      const uploadRes = await axios.post(
+      const uploadRes = await axiosInstance.post(
         "https://api.cloudinary.com/v1_1/priestlythedon/image/upload",
         data
       );
@@ -52,7 +52,7 @@ const Add = ({ setClose }) => {
         img: url,
       };
 
-      await axios.post("/api/pizzas", newProduct); // Use relative path for both dev & production
+      await axiosInstance.post("/api/pizzas", newProduct); // Use relative path for both dev & production
       setClose(true);
     } catch (err) {
       console.error("Failed to create pizza:", err);

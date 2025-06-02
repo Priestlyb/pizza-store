@@ -1,51 +1,70 @@
-import Image from 'next/image';
-import React from 'react';
+import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSelector } from "react-redux";
-import styles from "../styles/Navbar.module.css"
-
-// get our fontawesome imports
-import { faAffiliatetheme } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBarsStaggered, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faPhoneAlt } from "@fortawesome/free-solid-svg-icons";
+import { faAffiliatetheme } from "@fortawesome/free-brands-svg-icons";
+import styles from "../styles/Navbar.module.css";
 
-// create our App
 const Navbar = () => {
   const quantity = useSelector((state) => state.cart.quantity);
-  return (
-    <div className={styles.container}>
-      <div className={styles.item}>
-        <div className={styles.callButton}>
-          <Image src="/img/telephone.png" alt="" width="30" height="30" />
-        </div>
-        <div className={styles.texts}>
-          <div className={styles.text}>ORDER NOW!</div>
-          <div className={styles.text}>+234 806 715 6986</div>
-        </div>
-      </div>
-      <div className={styles.item}>
-        <ul className={styles.list}>
-          <Link href="/orders" passHref>
-            <li className={styles.listItem}>Order</li>
-          </Link>
-          <li className={styles.listItem}>Menu</li>
+  const [menuOpen, setMenuOpen] = useState(false);
 
-          <Link href="/" passHref>
-            <li className={styles.listItem}>
-              TR<FontAwesomeIcon icon={faAffiliatetheme} width="25" height="25" />TH Pizza
-            </li>
-          </Link>
-          <li className={styles.listItem}>About & Contact</li>
-        </ul>
+  return (
+    <header className={styles.navbar}>
+      {/* Logo */}
+      <div className={styles.logo}>
+        <Link href="/">
+          <a className={styles.brand}>
+            TR<FontAwesomeIcon width={25} height={25} icon={faAffiliatetheme} />TH PIZZA
+          </a>
+        </Link>
       </div>
-      <Link href="/cart" passHref>
-        <div className={styles.item}>
-          <div className={styles.cart}>
-            <Image src="/img/cart.png" alt="" width="30px" height="30px" />
-            <div className={styles.counter}>{quantity}</div>
-          </div>
+
+      {/* Navigation Links */}
+      <nav className={`${styles.navLinks} ${menuOpen ? styles.open : ""}`}>
+        <Link href="/">
+          <a>Menu</a>
+        </Link>
+        <Link href="/orders">
+          <a>Order</a>
+        </Link>
+        <Link href="#">
+          <a>About &amp; Contact</a>
+        </Link>
+      </nav>
+
+      {/* Right Section */}
+      <div className={styles.icons}>
+        <div className={styles.phone}>
+          <FontAwesomeIcon width={25} height={25} icon={faPhoneAlt} />
+          <span>+234 806 715 6986</span>
         </div>
-      </Link>
-    </div>
+
+        <Link href="/cart">
+          <a className={styles.cart}>
+            <Image src="/img/cart.png" alt="cart" width={25} height={25} />
+            <span className={styles.counter}>{quantity}</span>
+          </a>
+        </Link>
+
+        <button
+          className={styles.menuToggle}
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle navigation"
+        >
+          <FontAwesomeIcon
+            icon={menuOpen ? faXmark : faBarsStaggered}
+            width={25}
+            height={25}
+          />
+        </button>
+
+
+      </div>
+    </header>
   );
 };
 
