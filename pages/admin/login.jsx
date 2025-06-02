@@ -18,7 +18,7 @@ const Login = () => {
     
   const baseURL = "https://pizza-store-dusky.vercel.app";
     try {
-      await axios.post(`${baseURL}/api/login`, { username, password });
+      await axios.post(`/api/login`, { username, password });
       router.push("/admin");
     } catch (err) {
       console.error("Login failed:", err);

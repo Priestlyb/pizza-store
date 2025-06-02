@@ -29,35 +29,46 @@ const Add = ({ setClose }) => {
   };
 
   const handleCreate = async () => {
-    const data = new FormData();
-    data.append("file", file);
-    data.append("upload_preset", "Pizza_Img");
+  if (!file) {
+    alert("Please select a file to upload.");
+    return;
+  }
 
-    try {
-      const uploadRes = await axios.post(
-        "https://api.cloudinary.com/v1_1/priestlythedon/image/upload",
-        data
-      );
+  const data = new FormData();
+  data.append("file", file);
+  data.append("upload_preset", "uploads");
 
-      const { url } = uploadRes.data;
+  // Debug FormData
+  for (let pair of data.entries()) {
+    console.log(pair[0] + ": " + pair[1]);
+  }
 
-      const newProduct = {
-        title,
-        desc,
-        prices: prices.map((p) => Number(p)),
-        extraOption: extraOption.map((opt) => ({
-          text: opt.text,
-          price: Number(opt.price),
-        })),
-        img: url,
-      };
+  try {
+    const uploadRes = await axios.post(
+      "https://api.cloudinary.com/v1_1/priestlythedon/image/upload",
+      data
+    );
 
-      await axios.post("/api/pizzas", newProduct); // Use relative path for both dev & production
-      setClose(true);
-    } catch (err) {
-      console.error("Failed to create pizza:", err);
-    }
-  };
+    const { url } = uploadRes.data;
+
+    const newProduct = {
+      title,
+      desc,
+      prices: prices.map((p) => Number(p)),
+      extraOption: extraOption.map((opt) => ({
+        text: opt.text,
+        price: Number(opt.price),
+      })),
+      img: url,
+    };
+
+    await axios.post("/api/pizzas", newProduct);
+    setClose(true);
+  } catch (err) {
+    console.error("Failed to create pizza:", err.response?.data || err.message);
+  }
+};
+
 
   return (
     <div className={styles.container}>
