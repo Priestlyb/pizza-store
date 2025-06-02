@@ -1,6 +1,6 @@
 import React from 'react';
 import style from "../styles/Products.module.css"
-import ProductCard from "../components/ProductCards"
+import ProductCard from "./ProductCards"
 
 const Products = ({pizzas}) => {
   return (
@@ -12,9 +12,9 @@ const Products = ({pizzas}) => {
         sit amet, consectetur adipiscing elit.
       </p>
       <div className={style.wrapper}>
-        {pizzas.map((pizzas) => (
-          <ProductCard key={pizzas._id} pizzas={pizzas} />
-        ))}
+        {pizzas.map((pizza) => (
+        <ProductCard key={pizza._id} pizzas={pizza} />
+      ))}
       </div>
   </div>)
 };

@@ -1,6 +1,5 @@
 .container {
-    height: 100px;
-    padding: 0px 50px;
+    padding: 25px;
     background-color: #271b1b;
     display: flex;
     align-items: center;
@@ -8,6 +7,11 @@
     position: sticky;
     top: 0;
     z-index: 999;
+}
+
+.list {
+    display: flex;
+    gap: 10px;
 }
 
 .item {
@@ -58,8 +62,11 @@
 }
 
 .listItem {
-    margin: 20px;
     font-weight: 500;
+}
+
+.listItem:hover {
+    color: #ffa800;
 }
 
 .cart {

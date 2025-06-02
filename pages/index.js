@@ -1,14 +1,14 @@
-import Head from 'next/head'
+import Head from "next/head";
 import axios from "axios";
 import { useState } from "react";
-import Featured from '../components/Featured'
-import Pizzas from '../components/Products'
-import styles from '../styles/Home.module.css'
+import Featured from "../components/Featured";
+import Pizzas from "../components/Products";
+import styles from "../styles/Home.module.css";
 import Add from "../components/Add";
 import AddButton from "../components/AddButton";
 
 // create our App
-export default function Home({ pizzas, admin}) {
+export default function Home({ pizzas, admin }) {
   const [close, setClose] = useState(true);
   return (
     <div className={styles.container}>
@@ -22,7 +22,7 @@ export default function Home({ pizzas, admin}) {
       <Pizzas pizzas={pizzas} />
       {!close && <Add setClose={setClose} />}
     </div>
-  )
+  );
 }
 
 export const getServerSideProps = async (ctx) => {
@@ -33,10 +33,10 @@ export const getServerSideProps = async (ctx) => {
     admin = true;
   }
 
-  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const NEXT_PUBLIC_BASE_URL = 'https://pizza-store-dusky.vercel.app';
 
   try {
-    const res = await axios.get(`${baseURL}/api/pizzas`);
+    const res = await axios.get(`${NEXT_PUBLIC_BASE_URL}/api/pizzas`);
     return {
       props: {
         pizzas: res.data,
@@ -53,4 +53,3 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 };
-

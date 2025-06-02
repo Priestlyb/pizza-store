@@ -12,24 +12,20 @@ const Product = ({ pizza }) => {
   const [extras, setExtras] = useState([]);
   const dispatch = useDispatch();
 
-  const changePrice = (amount) => {
-    setPrice((prev) => prev + amount);
-  };
-
   const handleSizeChange = (newSize) => {
-    const priceDiff = pizza.prices[newSize] - pizza.prices[size];
+    const priceDifference = pizza.prices[newSize] - pizza.prices[size];
     setSize(newSize);
-    changePrice(priceDiff);
+    setPrice((prev) => prev + priceDifference);
   };
 
   const handleExtraChange = (e, option) => {
-    const isChecked = e.target.checked;
-    if (isChecked) {
+    const checked = e.target.checked;
+    if (checked) {
       setExtras((prev) => [...prev, option]);
-      changePrice(option.price);
+      setPrice((prev) => prev + option.price);
     } else {
-      setExtras((prev) => prev.filter((extra) => extra._id !== option._id));
-      changePrice(-option.price);
+      setExtras((prev) => prev.filter((item) => item._id !== option._id));
+      setPrice((prev) => prev - option.price);
     }
   };
 
@@ -43,17 +39,19 @@ const Product = ({ pizza }) => {
         <div className={styles.imgContainer}>
           <Image
             src={pizza.img}
-            fill
-            objectFit="contain"
-            alt={pizza.title}
+            alt={pizza.title || "Pizza image"}
+            width={500}  // example
+            height={500} // example
+            style={{ objectFit: "contain" }}
             priority
           />
+
         </div>
       </div>
 
       <div className={styles.right}>
         <h1 className={styles.title}>{pizza.title}</h1>
-        <span className={styles.price}>${price}</span>
+        <span className={styles.price}>${price.toFixed(2)}</span>
         <p className={styles.desc}>{pizza.desc}</p>
 
         <h3 className={styles.choose}>Choose the size</h3>
@@ -61,10 +59,14 @@ const Product = ({ pizza }) => {
           {["Small", "Medium", "Large"].map((label, index) => (
             <div
               key={label}
-              className={styles.size}
+              className={`${styles.size} ${index === size ? styles.selected : ""}`}
               onClick={() => handleSizeChange(index)}
             >
-              <Image src="/img/size.png" fill alt={label} />
+              <Image src="/img/size.png"
+                width={500}  // example
+                height={500} // example
+                style={{ objectFit: "contain" }}
+                priority alt={`${label} size`} />
               <span className={styles.number}>{label}</span>
             </div>
           ))}
@@ -72,16 +74,17 @@ const Product = ({ pizza }) => {
 
         <h3 className={styles.choose}>Choose additional ingredients</h3>
         <div className={styles.ingredients}>
-          {pizza.extraOption.map((option) => (
+          {pizza.extraOption?.map((option) => (
             <div className={styles.option} key={option._id}>
               <input
                 type="checkbox"
                 id={option._id}
-                name={option.text}
                 className={styles.checkbox}
                 onChange={(e) => handleExtraChange(e, option)}
               />
-              <label htmlFor={option._id}>{option.text}</label>
+              <label htmlFor={option._id}>
+                {option.text} (+${option.price.toFixed(2)})
+              </label>
             </div>
           ))}
         </div>
@@ -106,10 +109,15 @@ const Product = ({ pizza }) => {
 };
 
 export const getServerSideProps = async ({ params }) => {
+
+  const NEXT_PUBLIC_BASE_URL = 'https://pizza-store-dusky.vercel.app';
+
+  console.log("BASE BASE_URL:", NEXT_PUBLIC_BASE_URL);
+
   try {
-    const res = await axios.get(
-      `http://localhost:3000/api/pizzas/${params.id}`
-    );
+    const res = await axios.get(`${NEXT_PUBLIC_BASE_URL}/api/pizzas/${params.id}`);
+
+
     return { props: { pizza: res.data } };
   } catch (err) {
     console.error("Error fetching pizza:", err.message);

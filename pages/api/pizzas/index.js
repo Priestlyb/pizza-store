@@ -20,7 +20,9 @@ export default async function handler(req, res) {
         return res.status(200).json(pizzas);
       } catch (err) {
         console.error("❌ Failed to fetch pizzas:", err);
-        return res.status(500).json({ message: "Failed to fetch pizzas", error: err.message });
+        return res
+          .status(500)
+          .json({ message: "Failed to fetch pizzas", error: err.message });
       }
 
     case "POST":
@@ -33,21 +35,38 @@ export default async function handler(req, res) {
 
       // Input validation
       if (
-        !title || typeof title !== "string" || title.length > 60 ||
-        !desc || typeof desc !== "string" || desc.length > 200 ||
-        !img || typeof img !== "string" ||
-        !Array.isArray(prices) || prices.some(p => typeof p !== "number") ||
-        !Array.isArray(extraOption) || extraOption.some(opt => !opt.text || !opt.price)
+        !title ||
+        typeof title !== "string" ||
+        title.length > 60 ||
+        !desc ||
+        typeof desc !== "string" ||
+        desc.length > 200 ||
+        !img ||
+        typeof img !== "string" ||
+        !Array.isArray(prices) ||
+        prices.some((p) => typeof p !== "number") ||
+        !Array.isArray(extraOption) ||
+        extraOption.some((opt) => !opt.text || !opt.price)
       ) {
-        return res.status(400).json({ message: "Invalid or missing pizza fields" });
+        return res
+          .status(400)
+          .json({ message: "Invalid or missing pizza fields" });
       }
 
       try {
-        const newPizza = await Pizza.create({ title, desc, img, prices, extraOption });
+        const newPizza = await Pizza.create({
+          title,
+          desc,
+          img,
+          prices,
+          extraOption,
+        });
         return res.status(201).json(newPizza);
       } catch (err) {
         console.error("❌ Failed to create pizza:", err);
-        return res.status(500).json({ message: "Failed to create pizza", error: err.message });
+        return res
+          .status(500)
+          .json({ message: "Failed to create pizza", error: err.message });
       }
 
     default:

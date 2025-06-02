@@ -117,11 +117,12 @@ const Index = ({ orders, pizzas }) => {
 
 export const getServerSideProps = async (ctx) => {
   const myCookie = ctx.req?.cookies || {};
+  const baseURL = "https://pizza-store-dusky.vercel.app";
 
   if (myCookie.token !== process.env.TOKEN) {
     return {
       redirect: {
-        destination: "/admin/login",
+        destination: `${baseURL}/admin/login`,
         permanent: false,
       },
     };
@@ -129,8 +130,8 @@ export const getServerSideProps = async (ctx) => {
 
   try {
     const [pizzaRes, orderRes] = await Promise.all([
-      axios.get("http://localhost:3000/api/pizzas"),
-      axios.get("http://localhost:3000/api/orders"),
+      axios.get(`${baseURL}/api/pizzas`),
+      axios.get(`${baseURL}/api/orders`),
     ]);
 
     return {

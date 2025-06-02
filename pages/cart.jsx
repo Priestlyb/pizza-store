@@ -9,25 +9,45 @@ import {
   usePayPalScriptReducer,
 } from "@paypal/react-paypal-js";
 import axios from "axios";
-import { reset } from "../redux/cartSlice";
+import { reset, removeItem, updateQuantity, loadCartFromStorage } from "../redux/cartSlice";
 import OrderDetail from "../components/OrderDetail";
 
 const Cart = () => {
   const cart = useSelector((state) => state.cart);
-  const [open, setOpen] = useState(false);
-  const [cash, setCash] = useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
+
+  const [open, setOpen] = useState(false);
+  const [cash, setCash] = useState(false);
 
   const amount = cart.total;
   const currency = "USD";
   const style = { layout: "vertical" };
+  const TAX_RATE = 0.05;
+  const DISCOUNT = 0; // Could make dynamic
+  const TAX = cart.total * TAX_RATE;
+  const TOTAL_WITH_TAX = cart.total + TAX - DISCOUNT;
+
+  const NEXT_PUBLIC_BASE_URL = 'https://pizza-store-dusky.vercel.app';
+  const NEXT_PUBLIC_PAYPAL_CLIENT_ID = "AdTkw8GGKiERtk8Edl6CazJ4VxcnrluUtVUhgKxijmiIuZwpOy7yelGtdxeY284ij81Emu9D60SBwxGx";
+
+  useEffect(() => {
+    const savedCart = localStorage.getItem("pizza_cart");
+    if (savedCart) {
+      dispatch(loadCartFromStorage(JSON.parse(savedCart)));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("pizza_cart", JSON.stringify(cart));
+  }, [cart]);
 
   const createOrder = async (data) => {
     try {
-      const res = await axios.post("http://localhost:3000/api/orders", data);
+      const res = await axios.post(`${NEXT_PUBLIC_BASE_URL}/api/orders`, data);
       if (res.status === 201) {
         dispatch(reset());
+        localStorage.removeItem("pizza_cart");
         router.push(`/orders/${res.data._id}`);
       }
     } catch (err) {
@@ -35,16 +55,19 @@ const Cart = () => {
     }
   };
 
+  const handleQuantityChange = (id, quantity) => {
+    if (quantity >= 1) {
+      dispatch(updateQuantity({ id, quantity }));
+    }
+  };
+
   const ButtonWrapper = ({ currency, showSpinner }) => {
-    const [{ options, isPending }, dispatch] = usePayPalScriptReducer();
+    const [{ options, isPending }, paypalDispatch] = usePayPalScriptReducer();
 
     useEffect(() => {
-      dispatch({
+      paypalDispatch({
         type: "resetOptions",
-        value: {
-          ...options,
-          currency: currency,
-        },
+        value: { ...options, currency },
       });
     }, [currency, showSpinner]);
 
@@ -53,33 +76,30 @@ const Cart = () => {
         {showSpinner && isPending && <div className="spinner" />}
         <PayPalButtons
           style={style}
-          disabled={false}
           forceReRender={[amount, currency, style]}
-          createOrder={(data, actions) => {
-            return actions.order
-              .create({
-                purchase_units: [
-                  {
-                    amount: {
-                      currency_code: currency,
-                      value: amount,
-                    },
+          createOrder={(data, actions) =>
+            actions.order.create({
+              purchase_units: [
+                {
+                  amount: {
+                    currency_code: currency,
+                    value: TOTAL_WITH_TAX.toFixed(2),
                   },
-                ],
-              })
-              .then((orderId) => orderId);
-          }}
-          onApprove={(data, actions) => {
-            return actions.order.capture().then((details) => {
+                },
+              ],
+            })
+          }
+          onApprove={(data, actions) =>
+            actions.order.capture().then((details) => {
               const shipping = details.purchase_units[0].shipping;
               createOrder({
                 customer: shipping.name.full_name,
                 address: shipping.address.address_line_1,
-                total: cart.total,
+                total: TOTAL_WITH_TAX,
                 method: 1,
               });
-            });
-          }}
+            })
+          }
         />
       </>
     );
@@ -97,6 +117,7 @@ const Cart = () => {
               <th>Price</th>
               <th>Quantity</th>
               <th>Total</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -112,29 +133,35 @@ const Cart = () => {
                     />
                   </div>
                 </td>
+                <td>{pizza.title}</td>
                 <td>
-                  <span className={styles.name}>{pizza.title}</span>
+                  {pizza.extras.map((extra, index) => (
+                    <span key={extra._id}>
+                      {extra.text}
+                      {index < pizza.extras.length - 1 ? ", " : ""}
+                    </span>
+                  ))}
                 </td>
+                <td>${pizza.price.toFixed(2)}</td>
                 <td>
-                  <span className={styles.extras}>
-                    {pizza.extras.map((extra, index) => (
-                      <span key={extra._id}>
-                        {extra.text}
-                        {index < pizza.extras.length - 1 ? ", " : ""}
-                      </span>
-                    ))}
-                  </span>
+                  <input
+                    type="number"
+                    min="1"
+                    value={pizza.quantity}
+                    onChange={(e) =>
+                      handleQuantityChange(pizza._id, parseInt(e.target.value))
+                    }
+                    className={styles.quantityInput}
+                  />
                 </td>
+                <td>${(pizza.price * pizza.quantity).toFixed(2)}</td>
                 <td>
-                  <span className={styles.price}>${pizza.price.toFixed(2)}</span>
-                </td>
-                <td>
-                  <span className={styles.quantity}>{pizza.quantity}</span>
-                </td>
-                <td>
-                  <span className={styles.total}>
-                    ${(pizza.price * pizza.quantity).toFixed(2)}
-                  </span>
+                  <button
+                    onClick={() => dispatch(removeItem(pizza._id))}
+                    className={styles.removeBtn}
+                  >
+                    Remove
+                  </button>
                 </td>
               </tr>
             ))}
@@ -146,13 +173,16 @@ const Cart = () => {
         <div className={styles.wrapper}>
           <h2 className={styles.title}>CART TOTAL</h2>
           <div className={styles.totalText}>
-            <b className={styles.totalTextTitle}>Subtotal:</b>${cart.total.toFixed(2)}
+            <b>Subtotal:</b> ${cart.total.toFixed(2)}
           </div>
           <div className={styles.totalText}>
-            <b className={styles.totalTextTitle}>Discount:</b>$0.00
+            <b>Tax (5%):</b> ${TAX.toFixed(2)}
           </div>
           <div className={styles.totalText}>
-            <b className={styles.totalTextTitle}>Total:</b>${cart.total.toFixed(2)}
+            <b>Discount:</b> ${DISCOUNT.toFixed(2)}
+          </div>
+          <div className={styles.totalText}>
+            <b>Total:</b> ${TOTAL_WITH_TAX.toFixed(2)}
           </div>
 
           {open ? (
@@ -162,24 +192,28 @@ const Cart = () => {
               </button>
               <PayPalScriptProvider
                 options={{
-                  "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+                  "client-id": NEXT_PUBLIC_PAYPAL_CLIENT_ID,
                   components: "buttons",
                   currency: "USD",
-                  "disable-funding": "credit,card,p24",
                 }}
               >
                 <ButtonWrapper currency={currency} showSpinner={false} />
               </PayPalScriptProvider>
             </div>
           ) : (
-            <button onClick={() => setOpen(true)} className={styles.button}>
+            <button
+              onClick={() => setOpen(true)}
+              className={styles.button}
+              disabled={cart.total === 0}
+            >
               CHECKOUT NOW!
             </button>
+
           )}
         </div>
       </div>
 
-      {cash && <OrderDetail total={cart.total} createOrder={createOrder} />}
+      {cash && <OrderDetail total={TOTAL_WITH_TAX} createOrder={createOrder} />}
     </div>
   );
 };

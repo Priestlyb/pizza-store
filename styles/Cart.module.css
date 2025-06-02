@@ -1,59 +1,153 @@
 .container {
-    padding: 50px;
-    display: flex;
-  }
-  
-  .left {
-    flex: 2;
-  }
-  
-  .right {
-    flex: 1;
-  }
+  padding: 50px;
+  display: flex;
+}
+
+.left {
+  flex: 2;
+}
+
+.right {
+  flex: 1;
+}
 
 .imgContainer {
-    width: 100px;
-    height: 100px;
-    position: relative;
+  width: 100px;
+  height: 100px;
+  position: relative;
+}
+
+.table {
+  display: block;
+  width: 100%;
+  border-spacing: 50px;
+}
+
+.name {
+  font-weight: 500;
+  color: #d1411e;
+  font-size: 18px;
+}
+
+.total {
+  font-weight: 500;
+  font-size: 18px;
+}
+
+.wrapper {
+  background-color: #333;
+  padding: 50px;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: white;
+}
+
+.totalTextTitle {
+  margin-right: 10px;
+}
+
+.button {
+  color: #d1411e;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 20px;
+  padding: 5px;
+}
+
+.paymentMethods {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.payButton {
+  padding: 10px 5px;
+  cursor: pointer;
+  margin-bottom: 5px;
+  background-color: white;
+  color: teal;
+  font-weight: bold;
+}
+
+.quantityInput {
+  width: 50px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.removeBtn {
+  background-color: #ff4d4d;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.removeBtn:hover {
+  background-color: #e60000;
+}
+
+@media screen and (max-width: 480px) {
+  .container {
+    flex-direction: column;
+    padding: 20px;
   }
 
   .table {
-    display: block;
-    width: 100%;
-    border-spacing: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
-  .name {
-    font-weight: 500;
-    color: #d1411e;
-    font-size: 18px;
+  .trTitle {
+    display: none;
   }
-  
+
+  .tr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .imgcontainer {
+    width: 35vw;
+    height: 35vw;
+  }
+
+  .extra,
+  .price,
+  .quantity {
+    font-size: 22px;
+  }
+
+  .name,
   .total {
+    font-size: 24px;
+  }
+
+  .price::before {
+    content: "price: ";
     font-weight: 500;
-    font-size: 18px;
+  }
+
+  .quantity::before {
+    content: "quantity: ";
+    font-weight: 500;
+  }
+
+  .total::before {
+    content: "total: ";
+    font-weight: 500;
   }
 
   .wrapper {
-    background-color: #333;
-    padding: 50px;
-    padding-top: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    color: white;
-  }
-  
-  .totalTextTitle {
-    margin-right: 10px;
-  }
-  
-  .button {
-    color: #d1411e;
-    font-weight: 800;
-    cursor: pointer;
-    margin-top: 20px;
-    padding: 5px;
+    width: 100%;
   }
 
   .paymentMethods {
@@ -61,7 +155,7 @@
     display: flex;
     flex-direction: column;
   }
-  
+
   .payButton {
     padding: 10px 5px;
     cursor: pointer;
@@ -70,76 +164,4 @@
     color: teal;
     font-weight: bold;
   }
-
-
-  @media screen and (max-width:480px) {
-    .container {
-      flex-direction: column;
-      padding: 20px;
-    }
-
-    .table {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .trTitle {
-      display: none;
-    }
-
-    .tr {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .imgcontainer {
-      width: 35vw;
-      height: 35vw;
-    }
-
-    .extra, .price, .quantity {
-      font-size: 22px;
-    }
-
-    .name, .total {
-      font-size: 24px;
-    }
-
-    .price::before {
-      content: "price: ";
-      font-weight: 500;
-    }
-
-    .quantity::before {
-      content: "quantity: ";
-      font-weight: 500;
-    }
-
-    .total::before {
-      content: "total: ";
-      font-weight: 500;
-    }
-
-    .wrapper {
-      width: 100%;
-    }
-
-    .paymentMethods {
-      margin-top: 10px;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .payButton {
-      padding: 10px 5px;
-      cursor: pointer;
-      margin-bottom: 5px;
-      background-color: white;
-      color: teal;
-      font-weight: bold;
-    }
-  }
+}
