@@ -17,6 +17,7 @@ export default async function handler(req, res) {
     case "GET":
       try {
         const pizzas = await Pizza.find();
+        console.log("✅ Pizzas fetched successfully:", pizzas.length);
         return res.status(200).json(pizzas);
       } catch (err) {
         console.error("❌ Failed to fetch pizzas:", err);

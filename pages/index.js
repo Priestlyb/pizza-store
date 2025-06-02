@@ -37,6 +37,7 @@ export const getServerSideProps = async (ctx) => {
 
   try {
     const res = await axios.get(`${NEXT_PUBLIC_BASE_URL}/api/pizzas`);
+    console.log("Fetched pizzas:", res.data);
     return {
       props: {
         pizzas: res.data,
@@ -45,6 +46,10 @@ export const getServerSideProps = async (ctx) => {
     };
   } catch (error) {
     console.error("Failed to fetch pizzas:", error.message);
+  if (error.response) {
+    console.error("Response status:", error.response.status);
+    console.error("Response data:", error.response.data);
+  }
     return {
       props: {
         pizzas: [],

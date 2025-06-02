@@ -1,11 +1,10 @@
 import mongoose from "mongoose";
 
-const { Schema } = mongoose;
-
-const pizzaSchema = new Schema(
+const PizzaSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true },
-    desc: { type: String, required: true },
+    title: { type: String, required: true, maxLength: 60 },
+    desc: { type: String, required: true, maxLength: 200 },
+    img: { type: String, required: true },
     prices: { type: [Number], required: true },
     extraOption: [
       {
@@ -13,9 +12,8 @@ const pizzaSchema = new Schema(
         price: { type: Number },
       },
     ],
-    img: { type: String, required: true },
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Pizza || mongoose.model("Pizza", pizzaSchema);
+export default mongoose.models.Pizza || mongoose.model("Pizza", PizzaSchema);

@@ -9,7 +9,7 @@ import {
   usePayPalScriptReducer,
 } from "@paypal/react-paypal-js";
 import axios from "axios";
-import { reset, removePizza, updateQuantity, loadCartFromStorage } from "../redux/cartSlice";
+import { reset, removePizza, updateQuantity } from "../redux/cartSlice";
 import OrderDetail from "../components/OrderDetail";
 
 const Cart = () => {
@@ -20,28 +20,28 @@ const Cart = () => {
   const [open, setOpen] = useState(false);
   const [cash, setCash] = useState(false);
 
-  const amount = cart.total;
-  const currency = "USD";
-  const style = { layout: "vertical" };
+  // Constants
   const TAX_RATE = 0.05;
-  const DISCOUNT = 0; // Could make dynamic
+  const DISCOUNT = 0; // Future feature
   const TAX = cart.total * TAX_RATE;
   const TOTAL_WITH_TAX = cart.total + TAX - DISCOUNT;
 
-  const NEXT_PUBLIC_BASE_URL = 'https://pizza-store-dusky.vercel.app';
+  const NEXT_PUBLIC_BASE_URL = "https://pizza-store-dusky.vercel.app";
   const NEXT_PUBLIC_PAYPAL_CLIENT_ID = "AdTkw8GGKiERtk8Edl6CazJ4VxcnrluUtVUhgKxijmiIuZwpOy7yelGtdxeY284ij81Emu9D60SBwxGx";
 
-  useEffect(() => {
-    const savedCart = localStorage.getItem("pizza_cart");
-    if (savedCart) {
-      dispatch(loadCartFromStorage(JSON.parse(savedCart)));
-    }
-  }, []);
-
+  // Persist cart to localStorage
   useEffect(() => {
     localStorage.setItem("pizza_cart", JSON.stringify(cart));
   }, [cart]);
 
+  // Quantity update
+  const handleQuantityChange = (id, quantity) => {
+    if (quantity >= 1) {
+      dispatch(updateQuantity({ id, quantity }));
+    }
+  };
+
+  // Create order (PayPal or COD)
   const createOrder = async (data) => {
     try {
       const res = await axios.post(`${NEXT_PUBLIC_BASE_URL}/api/orders`, data);
@@ -55,12 +55,7 @@ const Cart = () => {
     }
   };
 
-  const handleQuantityChange = (id, quantity) => {
-    if (quantity >= 1) {
-      dispatch(updateQuantity({ id, quantity }));
-    }
-  };
-
+  // PayPal Button Wrapper
   const ButtonWrapper = ({ currency, showSpinner }) => {
     const [{ options, isPending }, paypalDispatch] = usePayPalScriptReducer();
 
@@ -75,8 +70,8 @@ const Cart = () => {
       <>
         {showSpinner && isPending && <div className="spinner" />}
         <PayPalButtons
-          style={style}
-          forceReRender={[amount, currency, style]}
+          style={{ layout: "vertical" }}
+          forceReRender={[cart.total, currency]}
           createOrder={(data, actions) =>
             actions.order.create({
               purchase_units: [
@@ -187,7 +182,10 @@ const Cart = () => {
 
           {open ? (
             <div className={styles.paymentMethods}>
-              <button className={styles.payButton} onClick={() => setCash(true)}>
+              <button
+                className={styles.payButton}
+                onClick={() => setCash(true)}
+              >
                 CASH ON DELIVERY
               </button>
               <PayPalScriptProvider
@@ -197,7 +195,7 @@ const Cart = () => {
                   currency: "USD",
                 }}
               >
-                <ButtonWrapper currency={currency} showSpinner={false} />
+                <ButtonWrapper currency="USD" showSpinner={false} />
               </PayPalScriptProvider>
             </div>
           ) : (
@@ -208,12 +206,16 @@ const Cart = () => {
             >
               CHECKOUT NOW!
             </button>
-
           )}
         </div>
       </div>
 
-      {cash && <OrderDetail total={TOTAL_WITH_TAX} createOrder={createOrder} />}
+      {cash && (
+        <OrderDetail
+          total={TOTAL_WITH_TAX}
+          createOrder={createOrder}
+        />
+      )}
     </div>
   );
 };
