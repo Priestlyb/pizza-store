@@ -9,7 +9,7 @@ import {
   usePayPalScriptReducer,
 } from "@paypal/react-paypal-js";
 import axios from "axios";
-import { reset, removeItem, updateQuantity, loadCartFromStorage } from "../redux/cartSlice";
+import { reset, removePizza, updateQuantity, loadCartFromStorage } from "../redux/cartSlice";
 import OrderDetail from "../components/OrderDetail";
 
 const Cart = () => {
@@ -47,7 +47,7 @@ const Cart = () => {
       const res = await axios.post(`${NEXT_PUBLIC_BASE_URL}/api/orders`, data);
       if (res.status === 201) {
         dispatch(reset());
-        localStorage.removeItem("pizza_cart");
+        localStorage.removePizza("pizza_cart");
         router.push(`/orders/${res.data._id}`);
       }
     } catch (err) {
@@ -157,7 +157,7 @@ const Cart = () => {
                 <td>${(pizza.price * pizza.quantity).toFixed(2)}</td>
                 <td>
                   <button
-                    onClick={() => dispatch(removeItem(pizza._id))}
+                    onClick={() => dispatch(removePizza(pizza._id))}
                     className={styles.removeBtn}
                   >
                     Remove
